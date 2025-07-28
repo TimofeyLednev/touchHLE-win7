@@ -15,7 +15,7 @@ jobs:
 
     - name: Download modified Rust for Win7
       run: |
-        curl -L -o rust-win7.zip https://yourdomain.com/rust-win7.7z
+        curl -L -o rust-win7.7z https://yourdomain.com/rust-win7.7z
         7z x rust-win7.7z -orust-win7
 
     - name: Add Rust bin to PATH
