@@ -1,0 +1,41 @@
+name: Build touchHLE with custom Rust (Win7)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-win7:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Download modified Rust for Win7
+      run: |
+        curl -L -o rust-win7.zip https://yourdomain.com/rust-win7.7z
+        7z x rust-win7.7z -orust-win7
+
+    - name: Add Rust bin to PATH
+      run: echo "${{ github.workspace }}\\rust-win7\\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+
+    - name: Confirm rustc
+      run: rustc --version
+
+    - name: Confirm cargo
+      run: cargo --version
+
+    - name: Clone original touchHLE
+      run: git clone --recursive https://github.com/ciciplusplus/touchHLE.git
+
+    - name: Download Boost
+      run: |
+        curl -L -o boost.7z https://archives.boost.io/release/1.81.0/source/boost_1_81_0.7z
+        7z x boost.7z -ovendor
+        move vendor\\boost_1_81_0 vendor\\boost
+
+    - name: Build with custom Rust
+      run: cargo build --release
+      working-directory: touchHLE
