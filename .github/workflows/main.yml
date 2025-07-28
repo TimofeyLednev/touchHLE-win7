@@ -15,6 +15,7 @@ jobs:
 
     - name: Install 7-Zip
       run: choco install 7zip
+      shell: powershell
 
     - name: Download modified Rust for Win7
       run: |
@@ -25,6 +26,10 @@ jobs:
         fi
         ls -l rust-win7.7z
         7z x rust-win7.7z -orust-win7
+        if [ $? -ne 0 ]; then
+          echo "Failed to extract rust-win7.7z"
+          exit 1
+        fi
       shell: bash
 
     - name: Add Rust bin to PATH
