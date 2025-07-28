@@ -13,29 +13,44 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Install 7-Zip
+      run: choco install 7zip
+
     - name: Download modified Rust for Win7
       run: |
         curl -L -o rust-win7.7z https://github.com/TimofeyLednev/touchHLE-win7/releases/download/rust1.88/rust-win7.7z
+        if [ $? -ne 0 ]; then
+          echo "Failed to download rust-win7.7z"
+          exit 1
+        fi
+        ls -l rust-win7.7z
         7z x rust-win7.7z -orust-win7
+      shell: bash
 
     - name: Add Rust bin to PATH
-      run: echo "${{ github.workspace }}\\rust-win7\\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+      run: echo "${{ github.workspace }}/rust-win7/bin" >> $GITHUB_PATH
+      shell: bash
 
     - name: Confirm rustc
       run: rustc --version
+      shell: bash
 
     - name: Confirm cargo
       run: cargo --version
+      shell: bash
 
     - name: Clone original touchHLE
       run: git clone --recursive https://github.com/ciciplusplus/touchHLE.git
+      shell: bash
 
     - name: Download Boost
       run: |
         curl -L -o boost.7z https://archives.boost.io/release/1.81.0/source/boost_1_81_0.7z
         7z x boost.7z -ovendor
-        move vendor\\boost_1_81_0 vendor\\boost
+        mv vendor/boost_1_81_0 vendor/boost
+      shell: bash
 
     - name: Build with custom Rust
       run: cargo build --release
       working-directory: touchHLE
+      shell: bash
