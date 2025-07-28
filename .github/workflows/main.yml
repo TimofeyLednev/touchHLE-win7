@@ -14,23 +14,35 @@ jobs:
         fetch-depth: 0
 
     - name: Install 7-Zip
-      run: choco install 7zip -y
+      run: choco install 7zip
       shell: powershell
 
-    - name: Prepare Rust folder
-      run: mkdir rust && cd rust && curl -L -o rust-win7.7z https://github.com/TimofeyLednev/touchHLE-win7/releases/download/rust1.88/rust-win7.7z && 7z x rust-win7.7z
-      shell: bash
-      working-directory: ${{ github.workspace }}
-
-    - name: Add Rust bin to PATH
-      run: echo "${{ github.workspace }}/rust/rust-win7/bin" >> $GITHUB_PATH
-      shell: bash
-
-    - name: Print PATH and confirm rustc
+    - name: Download modified Rust for Win7
       run: |
-        echo "PATH: $PATH"
+        curl -L -o rust-win7.7z https://github.com/TimofeyLednev/touchHLE-win7/releases/download/rust1.88/rust-win7.7z
+        if [ $? -ne 0 ]; then
+          echo "Failed to download rust-win7.7z"
+          exit 1
+        fi
+        ls -l rust-win7.7z
+        7z x rust-win7.7z -orust-win7
+        if [ $? -ne 0 ]; then
+          echo "Failed to extract rust-win7.7z"
+          exit 1
+        fi
+      shell: bash
+
+    - name: Prepend Rust bin to PATH
+      run: echo "PATH=${{ github.workspace }}/rust-win7/bin:\$PATH" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Check Rust binaries location and version
+      run: |
+        command -v rustc
+        command -v cargo
         rustc --version
         cargo --version
+        echo "PATH: $PATH"
       shell: bash
 
     - name: Clone original touchHLE
