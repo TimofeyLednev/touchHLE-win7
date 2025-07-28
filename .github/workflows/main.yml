@@ -43,6 +43,13 @@ jobs:
       run: git clone --recursive https://github.com/ciciplusplus/touchHLE.git
       shell: bash
 
+    - name: Download and apply Cargo.toml patch
+      run: |
+          curl -L -o fix.patch https://raw.githubusercontent.com/yourname/touchHLE-win7-patches/main/fix.patch
+          git apply fix.patch
+          working-directory: touchHLE
+      shell: bash
+
     - name: Download and extract Boost
       run: |
         curl -L -o boost.7z https://archives.boost.io/release/1.81.0/source/boost_1_81_0.7z
