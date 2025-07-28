@@ -17,18 +17,13 @@ jobs:
       run: choco install 7zip -y
       shell: powershell
 
-    - name: Download modified Rust for Win7
-      run: |
-        curl -L -o rust-win7.7z https://github.com/TimofeyLednev/touchHLE-win7/releases/download/rust1.88/rust-win7.7z
-        7z x rust-win7.7z -orust-win7
+    - name: Prepare Rust folder
+      run: mkdir rust && cd rust && curl -L -o rust-win7.7z https://github.com/TimofeyLednev/touchHLE-win7/releases/download/rust1.88/rust-win7.7z && 7z x rust-win7.7z
       shell: bash
-
-    - name: Show Rust folder structure
-      run: ls -R rust-win7
-      shell: bash
+      working-directory: ${{ github.workspace }}
 
     - name: Add Rust bin to PATH
-      run: echo "${{ github.workspace }}/rust-win7/bin" >> $GITHUB_PATH
+      run: echo "${{ github.workspace }}/rust/rust-win7/bin" >> $GITHUB_PATH
       shell: bash
 
     - name: Print PATH and confirm rustc
