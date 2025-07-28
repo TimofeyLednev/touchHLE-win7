@@ -45,7 +45,7 @@ jobs:
 
     - name: Download and apply Cargo.toml patch
       run: |
-          curl -L -o fix.patch https://raw.githubusercontent.com/yourname/touchHLE-win7-patches/main/fix.patch
+          curl -L -o fix.patch https://github.com/TimofeyLednev/touchHLE-win7/releases/download/rust1.88/fix.patch
           git apply fix.patch
           working-directory: touchHLE
       shell: bash
