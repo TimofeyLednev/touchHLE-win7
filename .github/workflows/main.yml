@@ -32,6 +32,10 @@ jobs:
         fi
       shell: bash
 
+    - name: Show Rust folder structure
+      run: tree -L 3 rust-win7 || ls -R rust-win7
+      shell: bash
+
     - name: Add Rust bin to PATH
       run: echo "$PWD/rust-win7/bin" >> $GITHUB_PATH
       shell: bash
