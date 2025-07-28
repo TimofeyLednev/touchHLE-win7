@@ -14,42 +14,36 @@ jobs:
         fetch-depth: 0
 
     - name: Install 7-Zip
-      run: choco install 7zip
+      run: choco install 7zip -y
       shell: powershell
 
-    - name: Download modified Rust for Win7
+    - name: Add 7-Zip to PATH
+      run: echo "/c/Program Files/7-Zip" >> $GITHUB_PATH
+      shell: bash
+
+    - name: Download and extract Rust for Win7
       run: |
         curl -L -o rust-win7.7z https://github.com/TimofeyLednev/touchHLE-win7/releases/download/rust1.88/rust-win7.7z
-        if [ $? -ne 0 ]; then
-          echo "Failed to download rust-win7.7z"
-          exit 1
-        fi
-        ls -l rust-win7.7z
         7z x rust-win7.7z -orust-win7
-        if [ $? -ne 0 ]; then
-          echo "Failed to extract rust-win7.7z"
-          exit 1
-        fi
       shell: bash
 
-    - name: Prepend Rust bin to PATH
-      run: echo "PATH=${{ github.workspace }}/rust-win7/bin:\$PATH" >> $GITHUB_ENV
+    - name: Prepend Rust to PATH (correct)
+      run: echo "PATH=${{ github.workspace }}/rust-win7/bin:$PATH" >> $GITHUB_ENV
       shell: bash
 
-    - name: Check Rust binaries location and version
+    - name: Confirm Rust in PATH
       run: |
-        command -v rustc
-        command -v cargo
+        echo "Using rustc from: $(command -v rustc)"
         rustc --version
+        echo "Using cargo from: $(command -v cargo)"
         cargo --version
-        echo "PATH: $PATH"
       shell: bash
 
     - name: Clone original touchHLE
       run: git clone --recursive https://github.com/ciciplusplus/touchHLE.git
       shell: bash
 
-    - name: Download Boost
+    - name: Download and extract Boost
       run: |
         curl -L -o boost.7z https://archives.boost.io/release/1.81.0/source/boost_1_81_0.7z
         7z x boost.7z -ovendor
