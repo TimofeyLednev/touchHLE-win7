@@ -8,7 +8,7 @@
 
 ## 📦 What is this?
 
-This guide shows how to build [touchHLE](https://github.com/touchHLE/touchHLE) on **Windows 7** and **Windows Vista SP2** using a **patched version of Rust 1.88.0** that restores compatibility with these platforms.
+This guide shows how to build [touchHLE](https://github.com/touchHLE/touchHLE) for **Windows 7** and **Windows Vista SP2** using a **patched version of Rust 1.88.0** that restores compatibility with these platforms.
 
 ---
 
