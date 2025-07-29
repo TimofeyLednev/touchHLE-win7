@@ -151,5 +151,3 @@ After building, the `touchHLE` binary will be available in `target\release\`.
 ⭐ If this helped you, consider starring the original projects!
 
 ```
-
----
