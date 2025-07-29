@@ -57,6 +57,14 @@ jobs:
         mv vendor/boost_1_81_0 vendor/boost
       shell: bash
 
+    - name: Force dependency versions
+      working-directory: touchHLE
+      run: |
+        cargo update -p proc-macro2 --precise 1.0.46
+        cargo update -p proc-macro-error --precise 1.0.3
+        cargo update -p proc-macro-error-attr --precise 1.0.3
+      shell: bash
+
     - name: Build with custom Rust
       run: cargo build --release
       working-directory: touchHLE
