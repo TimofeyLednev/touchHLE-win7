@@ -48,6 +48,7 @@ jobs:
       run: |
         curl -L -o downgrade_proc_macro.patch https://github.com/TimofeyLednev/touchHLE-win7/releases/download/rust1.88/downgrade_proc_macro.patch
         git apply --verbose --ignore-whitespace downgrade_proc_macro.patch
+        rm -f Cargo.lock
       shell: bash
 
     - name: Download and extract Boost
