@@ -93,10 +93,6 @@ Since you're using a custom Rust toolchain, you'll need to build Cargo using it.
 
 1. **Temporarily copy the default Cargo from `stage0` to `stage1`**, so you can build a new version:
 
-   ```bash
-   copy build\stage0\bin\cargo.exe build\stage1\bin\
-   ```
-
 2. **Use this temporary Cargo to build a new, patched Cargo**:
 
    ```bash
@@ -107,16 +103,6 @@ Since you're using a custom Rust toolchain, you'll need to build Cargo using it.
 
 3. **Replace the temporary Cargo in `stage1` with the newly built one**:
 
-   ```bash
-   copy /Y target\release\cargo.exe build\stage1\bin\
-   ```
-
-4. *(Optional)*: Also replace the old Cargo in `stage0`, if needed:
-
-   ```bash
-   copy /Y target\release\cargo.exe build\stage0\bin\
-   ```
-
 Now you have both `cargo` and `rustc` in `stage1\bin\` using your patched setup.
 
 ---
@@ -126,6 +112,9 @@ Now you have both `cargo` and `rustc` in `stage1\bin\` using your patched setup.
 ```bash
 git clone https://github.com/touchHLE/touchHLE.git --recurse-submodules
 cd touchHLE
+```
+Before build apply the patch, you can download it [from here](https://github.com/TimofeyLednev/touchHLE-win7/blob/main/downgrade_proc_macro.patch) then apply the patch: `git apply --verbose --ignore-whitespace downgrade_proc_macro.patch`
+```
 cargo build --release
 ```
 
