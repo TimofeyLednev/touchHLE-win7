@@ -1,7 +1,7 @@
 
 
 
-# 🕹️ touchHLE with Windows 7 & Vista SP2 Support  
+# 🕹️ touchHLE with Windows 7 & Vista SP2 (with Platform Update) Support  
 > Build guide using patched Rust (1.88.0) to run touchHLE for legacy Windows systems
 
 ---
