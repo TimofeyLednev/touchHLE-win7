@@ -40,7 +40,14 @@ jobs:
       shell: bash
 
     - name: Clone original touchHLE
-      run: git clone --recursive https://github.com/ciciplusplus/touchHLE.git
+      run: git clone --recursive https://github.com/touchHLE/touchHLE.git
+      shell: bash
+
+    - name: Apply proc-macro version patch
+      working-directory: touchHLE
+      run: |
+        curl -L -o downgrade_proc_macro.patch https://github.com/TimofeyLednev/touchHLE-win7/releases/download/rust1.88/downgrade_proc_macro.patch
+        git apply --verbose --ignore-whitespace downgrade_proc_macro.patch
       shell: bash
 
     - name: Download and extract Boost
