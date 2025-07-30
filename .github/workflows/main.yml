@@ -15,6 +15,15 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      # 1. Отключаем предустановленный Rust
+      - name: Disable preinstalled Rust
+        shell: powershell
+        run: |
+          Remove-Item -Path "C:\Users\runneradmin\.cargo" -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item -Path "C:\Users\runneradmin\.rustup" -Recurse -Force -ErrorAction SilentlyContinue
+          echo "Предустановленный Rust удалён"
+
+      # 2. Клонирование репозитория
       - name: Clone touchHLE
         shell: powershell
         run: |
@@ -22,41 +31,21 @@ jobs:
           cd touchHLE
           git submodule update --init --recursive
 
-      - name: Downgrade version proc macro2 using patch
-        shell: powershell
-        run: |
-          cd touchHLE
-          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/TimofeyLednev/touchHLE-win7/main/downgrade_proc_macro.patch" -OutFile "downgrade_proc_macro.patch"
-          git apply --verbose --ignore-whitespace downgrade_proc_macro.patch
-
-      - name: Install and verify Boost
-        working-directory: ./touchHLE
-        shell: cmd
-        run: |
-          if not exist "vendor\boost" (
-            echo Installing Boost 1_81_0...
-            curl -L -o boost_1_81_0.7z https://archives.boost.io/release/1.81.0/source/boost_1_81_0.7z
-            7z x boost_1_81_0.7z -ovendor
-            ren vendor\boost_1_81_0 boost
-          )
-          
-          echo Verifying Boost installation...
-          if not exist "vendor\boost\boost\version.hpp" (
-            echo ❌ Error: Boost not installed correctly!
-            exit 1
-          )
-          echo ✅ Boost verified: version.hpp found
-
-          echo BOOST_ROOT=%cd%\vendor\boost >> %GITHUB_ENV%
-
+      # 3. Установка КАСТОМНОГО Rust
       - name: Install custom Rust
         shell: powershell
         run: |
           Invoke-WebRequest -Uri "${{ env.RUST_TOOLCHAIN_URL }}" -OutFile "rust-win7.7z"
           7z x rust-win7.7z -o"C:\rust" -y
-          echo "C:\rust\bin" >> $env:GITHUB_PATH
+          
+          $newPath = "C:\rust\bin;" + $env:PATH
+          echo "##[set-env name=PATH;]$newPath"
+          echo "##[set-env name=CARGO_HOME;]C:\rust"
+          echo "##[set-env name=RUSTUP_HOME;]C:\rust"
+          
           rustc --version
           cargo --version
+          echo "Используемый Rust: $(rustc --version)"
 
       - name: Install LLVM
         shell: powershell
