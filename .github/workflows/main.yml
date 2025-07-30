@@ -7,46 +7,75 @@ on:
     branches: [ "main" ]
 
 env:
-  RUST_TOOLCHAIN_URL: "https://github.com/TimofeyLednev/touchHLE-win7/releases/download/Rust1.88/rust-win7.7z"  
-  LLVM_VERSION: "12.0.1" 
+  RUST_TOOLCHAIN_URL: "https://github.com/TimofeyLednev/touchHLE-win7/releases/download/Rust1.88/rust-win7.7z"
+  LLVM_VERSION: "12.0.1"
 
 jobs:
   build-win:
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
 
     steps:
-      # 1. Отключаем предустановленный Rust
-      - name: Disable preinstalled Rust
-        shell: powershell
+      # 1. Полная очистка Rust
+      - name: Clean Rust environment
         run: |
-          Remove-Item -Path "C:\Users\runneradmin\.cargo" -Recurse -Force -ErrorAction SilentlyContinue
-          Remove-Item -Path "C:\Users\runneradmin\.rustup" -Recurse -Force -ErrorAction SilentlyContinue
-          echo "Предустановленный Rust удалён"
+          Remove-Item -Path "$env:USERPROFILE\.cargo" -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item -Path "$env:USERPROFILE\.rustup" -Recurse -Force -ErrorAction SilentlyContinue
+          
+          $cleanPath = ($env:PATH -split ';' | Where-Object {
+              $_ -notmatch 'rustup|cargo|\.rustup|\.cargo'
+          }) -join ';'
+          echo "PATH=$cleanPath" >> $env:GITHUB_ENV
+          Write-Output "Окружение Rust полностью очищено"
 
-      # 2. Клонирование репозитория
+      # 2. Установка кастомного Rust
+      - name: Install custom Rust
+        run: |
+          Invoke-WebRequest -Uri $env:RUST_TOOLCHAIN_URL -OutFile "rust-win7.7z"
+          
+          7z x rust-win7.7z -o"C:\rust-toolchain" -y
+          
+          $newPath = "C:\rust-toolchain\bin;$env:PATH"
+          echo "C:\rust-toolchain\bin" >> $env:GITHUB_PATH
+          echo "CARGO_HOME=C:\rust-toolchain" >> $env:GITHUB_ENV
+          echo "RUSTUP_HOME=C:\rust-toolchain" >> $env:GITHUB_ENV
+          
+          Write-Output "Установка завершена. Проверяем:"
+          $env:PATH = "C:\rust-toolchain\bin;$env:PATH"
+          Get-Command rustc -ErrorAction Stop | Out-Null
+          rustc --version
+          cargo --version
+
       - name: Clone touchHLE
-        shell: powershell
         run: |
           git clone https://github.com/touchHLE/touchHLE.git --recurse-submodules
           cd touchHLE
           git submodule update --init --recursive
 
-      # 3. Установка КАСТОМНОГО Rust
-      - name: Install custom Rust
-        shell: powershell
+      - name: Apply proc_macro patch
+        working-directory: ./touchHLE
         run: |
-          Invoke-WebRequest -Uri "${{ env.RUST_TOOLCHAIN_URL }}" -OutFile "rust-win7.7z"
-          7z x rust-win7.7z -o"C:\rust" -y
-          
-          $newPath = "C:\rust\bin;" + $env:PATH
-          echo "##[set-env name=PATH;]$newPath"
-          echo "##[set-env name=CARGO_HOME;]C:\rust"
-          echo "##[set-env name=RUSTUP_HOME;]C:\rust"
-          
-          rustc --version
-          cargo --version
-          echo "Используемый Rust: $(rustc --version)"
+          curl -L -o downgrade_proc_macro.patch https://raw.githubusercontent.com/TimofeyLednev/touchHLE-win7/main/downgrade_proc_macro.patch
+          git apply --verbose --ignore-whitespace downgrade_proc_macro.patch
 
+      - name: Install Boost 1.81.0
+        working-directory: ./touchHLE
+        shell: cmd
+        run: |
+          if not exist "vendor\boost" (
+            echo Установка Boost 1.81.0...
+            curl -L -o boost_1_81_0.7z "https://archives.boost.io/release/1.81.0/source/boost_1_81_0.7z"
+            7z x boost_1_81_0.7z -ovendor
+            ren vendor\boost_1_81_0 boost
+            echo BOOST_ROOT=%cd%\vendor\boost >> %GITHUB_ENV%
+          )
+          if not exist "vendor\boost\boost\version.hpp" (
+            echo Ошибка: Boost не установился правильно!
+            exit 1
+          )
+      
       - name: Install LLVM
         shell: powershell
         run: |
