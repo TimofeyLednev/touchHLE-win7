@@ -1,4 +1,4 @@
-name: Build touchHLE (Windows Vista SP2+ compatible)
+name: Build touchHLE (Windows 7 or Vista SP2+ compatible)
 
 on:
   push:
