@@ -1,24 +1,21 @@
 name: Build touchHLE (Windows 7 or Vista SP2+ compatible)
-
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
+  workflow_dispatch: 
 env:
   RUST_TOOLCHAIN_URL: "https://github.com/TimofeyLednev/touchHLE-win7/releases/download/Rust1.88/rust-win7.7z"
   LLVM_VERSION: "12.0.1"
-
 jobs:
   build-win:
     runs-on: windows-latest
     defaults:
       run:
         shell: pwsh
-
     steps:
-      # 1. Полная очистка Rust
+
       - name: Clean Rust environment
         run: |
           Remove-Item -Path "$env:USERPROFILE\.cargo" -Recurse -Force -ErrorAction SilentlyContinue
@@ -30,7 +27,6 @@ jobs:
           echo "PATH=$cleanPath" >> $env:GITHUB_ENV
           Write-Output "Окружение Rust полностью очищено"
 
-      # 2. Установка кастомного Rust
       - name: Install custom Rust
         run: |
           Invoke-WebRequest -Uri $env:RUST_TOOLCHAIN_URL -OutFile "rust-win7.7z"
@@ -47,19 +43,16 @@ jobs:
           Get-Command rustc -ErrorAction Stop | Out-Null
           rustc --version
           cargo --version
-
       - name: Clone touchHLE
         run: |
           git clone https://github.com/touchHLE/touchHLE.git --recurse-submodules
           cd touchHLE
           git submodule update --init --recursive
-
       - name: Apply proc_macro patch
         working-directory: ./touchHLE
         run: |
           curl -L -o downgrade_proc_macro.patch https://raw.githubusercontent.com/TimofeyLednev/touchHLE-win7/main/downgrade_proc_macro.patch
           git apply --verbose --ignore-whitespace downgrade_proc_macro.patch
-
       - name: Install Boost 1.81.0
         working-directory: ./touchHLE
         shell: cmd
@@ -82,14 +75,12 @@ jobs:
           $url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-${{ env.LLVM_VERSION }}/LLVM-${{ env.LLVM_VERSION }}-win64.exe"
           Invoke-WebRequest -Uri $url -OutFile "llvm.exe"
           Start-Process -Wait -FilePath "llvm.exe" -ArgumentList "/S"
-
       - name: Build
         working-directory: ./touchHLE
         run: |
           cargo build --release
           cd dev-scripts
           ./make-windows-bundle.sh ../target/release/touchHLE.exe
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
