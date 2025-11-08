@@ -45,7 +45,7 @@ x64 Native Tools Command Prompt for VS2022
 ```bash
 git clone https://github.com/rust-lang/rust.git --recurse-submodules
 cd rust
-git checkout 1.88.0
+git checkout 1.90.0
 ```
 
 ---
@@ -57,14 +57,14 @@ git checkout 1.88.0
 
 2. Files you need:
 
-   * `1.88.0win7.diff` — for Windows 7 support
-   * (Optional) `1.88.0vista.diff` — for Vista support
+   * `1.90.0win7.diff` — for Windows 7 support
+   * (Optional) `1.90.0vista.diff` — for Vista support
 
 3. Copy the patch files to the Rust directory and apply them:
 
 ```bash
-git apply --verbose --ignore-space-change 1.88.0win7.diff
-git apply --verbose --ignore-space-change 1.88.0vista.diff  # optional
+git apply --verbose --ignore-space-change 1.90.0win7.diff
+git apply --verbose --ignore-space-change 1.90.0vista.diff  # if you need support vista
 ```
 
 ---
