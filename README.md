@@ -113,7 +113,8 @@ Now you have both `cargo` and `rustc` in `stage1\bin\` using your patched setup.
 git clone https://github.com/touchHLE/touchHLE.git --recurse-submodules
 cd touchHLE
 ```
-Before build apply the patch, you can download it [from here](https://github.com/TimofeyLednev/touchHLE-win7/blob/main/downgrade_proc_macro.patch) then apply the patch: `git apply --verbose --ignore-whitespace downgrade_proc_macro.patch`
+~~Before build apply the patch, you can download it [from here](https://github.com/TimofeyLednev/touchHLE-win7/blob/main/downgrade_proc_macro.patch) then apply the patch: `git apply --verbose --ignore-whitespace downgrade_proc_macro.patch`~~ 
+No longer relevant after version 0.2.3, you can now compile touchHLE directly without any patches
 ```
 cargo build --release
 ```
