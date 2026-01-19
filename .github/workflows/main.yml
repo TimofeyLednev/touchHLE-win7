@@ -48,11 +48,6 @@ jobs:
           git clone https://github.com/touchHLE/touchHLE.git --recurse-submodules
           cd touchHLE
           git submodule update --init --recursive
-      - name: Apply proc_macro patch
-        working-directory: ./touchHLE
-        run: |
-          curl -L -o downgrade_proc_macro.patch https://raw.githubusercontent.com/TimofeyLednev/touchHLE-win7/main/downgrade_proc_macro.patch
-          git apply --verbose --ignore-whitespace downgrade_proc_macro.patch
       - name: Install Boost 1.81.0
         working-directory: ./touchHLE
         shell: cmd
